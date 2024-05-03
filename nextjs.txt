@@ -1,0 +1,11 @@
+Nextjs - Is a framework for building superfast  & Search - engine friendly application.
+
+It accepet both web browser and nodejs run time.
+
+What is nodejs run time?
+It is a engine which will execute javascript code in server.
+
+We can do SSR(Server side rendering) and SSG(Static site generation)
+SSR - It allows us to render our component on the server and send their content to the client.This is very fast.
+SSG - The components which we have static data, we can re-render when we build (npm run build) our application,
+we just render them once and serve them whenever needed.
