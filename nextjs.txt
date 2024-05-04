@@ -1,11 +1,312 @@
-Nextjs - Is a framework for building superfast  & Search - engine friendly application.
+What is a Next?
+	 Next is a flexible React framework that gives you building blocks to create fast "web applications".
 
-It accepet both web browser and nodejs run time.
+............................................................................................
+				Rendering Types
+............................................................................................
 
-What is nodejs run time?
-It is a engine which will execute javascript code in server.
+What is Rendering?
+   Render means preparation,HTML Page prepartion...
 
-We can do SSR(Server side rendering) and SSG(Static site generation)
-SSR - It allows us to render our component on the server and send their content to the client.This is very fast.
-SSG - The components which we have static data, we can re-render when we build (npm run build) our application,
-we just render them once and serve them whenever needed.
+Rendering Types:
+1.CSR- Client side Rendering.
+   HTML Pages are prepared at client side - SPA Applications
+2.SSR  -Server Side rendering
+   HTML Pages are prepared at server side - Dynamic Content Generation applications.
+
+Based on these rendering type, we can classify other rendering
+
+1.Universal rendering /Hybrid Rendering
+  Server + Client side , coimbing both rendering
+
+2.Full SSR and Partial SSR
+   Partial SSR is nothing but only "index.html" is compiled at server , rest of the application is rendered at client side.
+   Full SSR is nothing but "index.html" and other pages are compiled at server....
+
+.............................................................................................
+			When Rendering can happen
+		     (when html pages are parepared)
+.............................................................................................
+
+1.Request time
+2.Build time
+
+1.Request time :
+ When user types url 
+
+  http://www.example.com/product--------------->Server Receives Request----Prepares Page--send   that page to client.
+
+2.Build time
+    Build is nothing but, preparing app for production.. before hosting we have to prepare the     app
+  During build phase, we can prepare html pages/render html pages 
+
+			SSG -  Static Site Generations
+
+Building web sites/apps during build phase is called SSG.
+
+Why SSG?
+  Super fast page access
+
+Based On SSG , There is specfication is available "JAM Stack"
+
+...........................................................................................
+			Drawback of SSG(JAMStack App)
+..........................................................................................
+If page has data, which is keep on changing, preparing a page "ahead of time", that causes problem. that means we cant generate page on demand...
+
+Data changes rapidly , we need to enable request time page prepartion.
+
+...........................................................................................
+			ISR - Incremental Static Rendenering
+..........................................................................................
+
+SSG - Build time or ahead of time
+SSR - Request time
+
+ISR = SSG + SSR - Build time + request time 
+
+.............................................................................................
+
+What is Nextjs?
+
+  Next js is a framework that helps to build web apps of all types
+
+ you can build Full SSR apps..
+ you can build SSR With Request time
+ you can build SSG with Build time -  JAMStacks
+ you can build SSR with CSR  - Server + SPA - Hybrid rendering
+ you can build rest apis also - Web services
+
+Using Next you can build 
+ Pure server side apps with database access, other external api access.....
+
+..............................................................................................
+		               Next js UI layer
+.............................................................................................
+
+Next js uses "react core features" to build UI layer...
+
+React core features:
+1.React compoent driven
+2.React uses data mutation techniques like props and state
+3.React uses event listeners for interactions
+4.React hooks
+
+Nextjs tech stack:
+
+1.React as ui layer
+2.Next does not recommend to use "redux"
+3.Next uses api layer- rest api development
+4.Next can talk to any database via orm frameworks...
+
+..............................................................................................
+			Next js Architecture:
+.............................................................................................
+
+Next js uses "Rust based build system" where as react uses web pack build ....
+
+What is Rust?
+ It is programming langugage, used to build Nextjs apps. Next core engine is written in Rust only.
+
+Next.js Compiler:
+..................
+ Next js Compiler is written using RUST Using SWC (Speedy Web Compiler).
+
+SWC allows next js to transform and minify the js code for production. This replaces babel.
+
+SWC is 17x faster than Babel, it is embeded inside next js
+...........................................................................................
+
+....................................................................................
+		NEXT JS Getting Started
+....................................................................................
+
+To install - npx create-next-app@latest
+
+How to declare compoents?
+
+ 1.every component must be "functional component" - No Class Component.
+ 2.every component must be exported using "export default" only.
+ 3.Every Next application must have "root layout" src/app/layout.js
+ 4.Every Next application must have  "home/landing page" src/app/page.js
+
+
+....................................................................................
+		Patterns for client and server components
+
+1.Server component uses client component...
+
+2.Client component uses another server component
+
+3.Client component uses another client component
+
+1.Server Component uses client component:
+.........................................
+
+server:
+
+src/app/reviews/page.js
+import Like from "./like";
+
+export default function ReviewPage(){
+    return <>
+        <h1>Review Page</h1>
+        <Like/>
+    </>
+}
+client component
+src/app/reviews/like.jsx
+'use client'
+import { useState } from "react"
+
+export default function Like() {
+    //declare state
+    const [like, setLike] = useState(0)
+
+    const onLike = () => {
+        setLike(like + 1)
+    }
+
+    return <div>
+        <h3>Like {like}</h3>
+        <button onClick={onLike}>Like</button>
+    </div>
+}
+
+Note:
+ if server uses client, the component must be marked with "use client" directive..
+
+ ...................................................................................
+
+2.Client component uses another server component.
+
+  if client uses another server component, Server Component automatically becomes client component.
+ when we use this pattern, we loose server rendering...
+
+
+}
+
+server:
+src/app/reviews/Dislike.jsx
+export default function DislikeServer() {
+      return <div>
+       <h1>Dislike Server</h1>
+    </div>
+}
+
+Client:
+src/app/reviews/reviewClient.jsx
+'use client'
+import { useState } from "react"
+import DislikeServer from "./Dislike"
+
+export default function MyReview() {
+    //declare state
+    const [like, setLike] = useState(0)
+
+    const onLike = () => {
+        setLike(like + 1)
+    }
+
+    return <div>
+        <h3>Like {like}</h3>
+        <button onClick={onLike}>Like</button>
+        {/* Use server component */}
+        <DislikeServer/>
+    </div>
+}
+In the code, DislikeServer component runs in the client only....
+
+What if client uses server component but at the same time, i dont want to loose server rendering feature?
+
+Solution:
+
+ Pass Server component as prop to Child Component..
+
+<Client>
+    <Server/>
+</Client>
+
+src/app/client/myserver.jsx
+export default function MyServer(){
+    return <div>
+        <h1>Server Component</h1>
+    </div>
+}
+src/app/client/myclient.jsx
+'use client'
+
+// import MyServer from "./myserver"
+
+export default function MyClient(props){
+    return <div>
+        <h1>Client component</h1>
+        {/* <MyServer></MyServer> */}
+        {props.children}
+    </div>
+}
+
+src/app/client/page.js
+import MyClient from "./myclient";
+import MyServer from "./myserver";
+
+export default function ClientPage() {
+    return <>
+        <h1>Client Page</h1>
+        <MyClient>
+            {/* sending server as prop  */}
+            <MyServer/>
+        </MyClient>
+    </>
+}
+....................................................................................
+
+3.Client Uses another client Component...
+
+Client uses another client.
+
+src/app/myreviews/page.js
+import MyReview from "./MyReview";
+
+export default function Likes(){
+    return <div>
+        MyReview Page
+        <MyReview></MyReview>
+    </div>
+}
+
+Client:
+
+src/app/myreviews/MyReview.jsx
+
+'use client'
+
+import Like from "./like"
+
+export default function MyReview() {
+        return <>
+        <Like></Like>
+    </>
+}
+src/app/myreviews/like.jsx
+// 'use client'
+import { useState } from "react"
+
+export default function Like() {
+    //declare state
+    const [like, setLike] = useState(0)
+
+    const onLike = () => {
+        setLike(like + 1)
+    }
+
+    return <div>
+        <h3>Like {like}</h3>
+        <button onClick={onLike}>Like</button>
+    </div>
+}
+
+Note:
+ if client component uses another client component, that another client component no need to use "use client" directive.
+This would be very use full when we use third party ui components into next js...
+primiarly used for migration...
