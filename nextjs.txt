@@ -723,3 +723,33 @@ POST http://localhost:3000/api/greeter
     "by": "Subramanian",
     "whom": "Murugan"
 }
+
+.....................................................................................
+Configuration
+.....................................................................................
+
+In the above example, we haved coded urls, what if i dont want to hard code.
+
+const url = 'https://jsonplaceholder.typicode.com/albums'
+
+How to externalize the data like urls?
+
+We have file called '.env' file.
+
+Environment variables:
+
+ Next js comes with built in support for env variables which allows you to make your app more configurable, more flexiable.
+
+File syntax:
+
+.env
+.env.environment
+
+enviromnent would be "dev or prod or test"
+
+eg:
+.env
+.env.development
+.env.production
+.env.test
+.env.local
