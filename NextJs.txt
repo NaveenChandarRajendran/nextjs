@@ -1,0 +1,1468 @@
+What is a Next?
+	 Next is a flexible React framework that gives you building blocks to create fast "web applications".
+
+............................................................................................
+				Rendering Types
+............................................................................................
+
+What is Rendering?
+   Render means preparation,HTML Page prepartion...
+
+Rendering Types:
+1.CSR- Client side Rendering.
+   HTML Pages are prepared at client side - SPA Applications
+2.SSR  -Server Side rendering
+   HTML Pages are prepared at server side - Dynamic Content Generation applications.
+
+Based on these rendering type, we can classify other rendering
+
+1.Universal rendering /Hybrid Rendering
+  Server + Client side , coimbing both rendering
+
+2.Full SSR and Partial SSR
+   Partial SSR is nothing but only "index.html" is compiled at server , rest of the application is rendered at client side.
+   Full SSR is nothing but "index.html" and other pages are compiled at server....
+
+.............................................................................................
+			When Rendering can happen
+		     (when html pages are parepared)
+.............................................................................................
+
+1.Request time
+2.Build time
+
+1.Request time :
+ When user types url 
+
+  http://www.example.com/product--------------->Server Receives Request----Prepares Page--send   that page to client.
+
+2.Build time
+    Build is nothing but, preparing app for production.. before hosting we have to prepare the     app
+  During build phase, we can prepare html pages/render html pages 
+
+			SSG -  Static Site Generations
+
+Building web sites/apps during build phase is called SSG.
+
+Why SSG?
+  Super fast page access
+
+Based On SSG , There is specfication is available "JAM Stack"
+
+...........................................................................................
+			Drawback of SSG(JAMStack App)
+..........................................................................................
+If page has data, which is keep on changing, preparing a page "ahead of time", that causes problem. that means we cant generate page on demand...
+
+Data changes rapidly , we need to enable request time page prepartion.
+
+...........................................................................................
+			ISR - Incremental Static Rendenering
+..........................................................................................
+
+SSG - Build time or ahead of time
+SSR - Request time
+
+ISR = SSG + SSR - Build time + request time 
+
+.............................................................................................
+
+What is Nextjs?
+
+  Next js is a framework that helps to build web apps of all types
+
+ you can build Full SSR apps..
+ you can build SSR With Request time
+ you can build SSG with Build time -  JAMStacks
+ you can build SSR with CSR  - Server + SPA - Hybrid rendering
+ you can build rest apis also - Web services
+
+Using Next you can build 
+ Pure server side apps with database access, other external api access.....
+
+..............................................................................................
+		               Next js UI layer
+.............................................................................................
+
+Next js uses "react core features" to build UI layer...
+
+React core features:
+1.React compoent driven
+2.React uses data mutation techniques like props and state
+3.React uses event listeners for interactions
+4.React hooks
+
+Nextjs tech stack:
+
+1.React as ui layer
+2.Next does not recommend to use "redux"
+3.Next uses api layer- rest api development
+4.Next can talk to any database via orm frameworks...
+
+..............................................................................................
+			Next js Architecture:
+.............................................................................................
+
+Next js uses "Rust based build system" where as react uses web pack build ....
+
+What is Rust?
+ It is programming langugage, used to build Nextjs apps. Next core engine is written in Rust only.
+
+Next.js Compiler:
+..................
+ Next js Compiler is written using RUST Using SWC (Speedy Web Compiler).
+
+SWC allows next js to transform and minify the js code for production. This replaces babel.
+
+SWC is 17x faster than Babel, it is embeded inside next js
+...........................................................................................
+
+....................................................................................
+		NEXT JS Getting Started
+....................................................................................
+
+To install - npx create-next-app@latest
+
+How to declare compoents?
+
+ 1.every component must be "functional component" - No Class Component.
+ 2.every component must be exported using "export default" only.
+ 3.Every Next application must have "root layout" src/app/layout.js
+ 4.Every Next application must have  "home/landing page" src/app/page.js
+
+
+....................................................................................
+		Patterns for client and server components
+
+1.Server component uses client component...
+
+2.Client component uses another server component
+
+3.Client component uses another client component
+
+1.Server Component uses client component:
+.........................................
+
+server:
+
+src/app/reviews/page.js
+import Like from "./like";
+
+export default function ReviewPage(){
+    return <>
+        <h1>Review Page</h1>
+        <Like/>
+    </>
+}
+client component
+src/app/reviews/like.jsx
+'use client'
+import { useState } from "react"
+
+export default function Like() {
+    //declare state
+    const [like, setLike] = useState(0)
+
+    const onLike = () => {
+        setLike(like + 1)
+    }
+
+    return <div>
+        <h3>Like {like}</h3>
+        <button onClick={onLike}>Like</button>
+    </div>
+}
+
+Note:
+ if server uses client, the component must be marked with "use client" directive..
+
+ ...................................................................................
+
+2.Client component uses another server component.
+
+  if client uses another server component, Server Component automatically becomes client component.
+ when we use this pattern, we loose server rendering...
+
+
+}
+
+server:
+src/app/reviews/Dislike.jsx
+export default function DislikeServer() {
+      return <div>
+       <h1>Dislike Server</h1>
+    </div>
+}
+
+Client:
+src/app/reviews/reviewClient.jsx
+'use client'
+import { useState } from "react"
+import DislikeServer from "./Dislike"
+
+export default function MyReview() {
+    //declare state
+    const [like, setLike] = useState(0)
+
+    const onLike = () => {
+        setLike(like + 1)
+    }
+
+    return <div>
+        <h3>Like {like}</h3>
+        <button onClick={onLike}>Like</button>
+        {/* Use server component */}
+        <DislikeServer/>
+    </div>
+}
+In the code, DislikeServer component runs in the client only....
+
+What if client uses server component but at the same time, i dont want to loose server rendering feature?
+
+Solution:
+
+ Pass Server component as prop to Child Component..
+
+<Client>
+    <Server/>
+</Client>
+
+src/app/client/myserver.jsx
+export default function MyServer(){
+    return <div>
+        <h1>Server Component</h1>
+    </div>
+}
+src/app/client/myclient.jsx
+'use client'
+
+// import MyServer from "./myserver"
+
+export default function MyClient(props){
+    return <div>
+        <h1>Client component</h1>
+        {/* <MyServer></MyServer> */}
+        {props.children}
+    </div>
+}
+
+src/app/client/page.js
+import MyClient from "./myclient";
+import MyServer from "./myserver";
+
+export default function ClientPage() {
+    return <>
+        <h1>Client Page</h1>
+        <MyClient>
+            {/* sending server as prop  */}
+            <MyServer/>
+        </MyClient>
+    </>
+}
+....................................................................................
+
+3.Client Uses another client Component...
+
+Client uses another client.
+
+src/app/myreviews/page.js
+import MyReview from "./MyReview";
+
+export default function Likes(){
+    return <div>
+        MyReview Page
+        <MyReview></MyReview>
+    </div>
+}
+
+Client:
+
+src/app/myreviews/MyReview.jsx
+
+'use client'
+
+import Like from "./like"
+
+export default function MyReview() {
+        return <>
+        <Like></Like>
+    </>
+}
+src/app/myreviews/like.jsx
+// 'use client'
+import { useState } from "react"
+
+export default function Like() {
+    //declare state
+    const [like, setLike] = useState(0)
+
+    const onLike = () => {
+        setLike(like + 1)
+    }
+
+    return <div>
+        <h3>Like {like}</h3>
+        <button onClick={onLike}>Like</button>
+    </div>
+}
+
+Note:
+ if client component uses another client component, that another client component no need to use "use client" directive.
+This would be very use full when we use third party ui components into next js...
+primiarly used for migration...
+
+....................................................................................
+			Advanced Routing - Linking and Navigation
+......................................................................................
+
+		...............Linking and Navigation.......
+
+
+There are four ways to navigate between routes in Next.js
+
+1.Using <Link> Component
+2.Using useRouter Hook
+3.redirect function
+4.Using native History api
+
+Reddirection/navigation can happen in two places
+
+1.Server side redirection/navigation
+   Redirection is controlled by server
+2.Client side redirection/navigation
+   Redirection is controlled by browser
+
+.....................................................................................
+				useRouter Hook
+.....................................................................................
+
+userRouter hook allows you programmatically change route from client components.
+
+src/app/components/DashboardNavigator.jsx
+
+'use client'
+import { useRouter } from "next/navigation"
+
+export function DashBoardNavigator() {
+    const router = useRouter()
+    return <>
+        <button onClick={() => {
+            router.push('/dashboard')
+        }}>Dashboard</button>
+    </>
+}
+
+src/app/page.js
+import { DashBoardNavigator } from "./components/DashboardNavigator";
+
+
+export default function HomePage() {
+  return <div>
+    <h1>Home Page</h1>
+    <DashBoardNavigator/>
+  </div>
+}
+
+src/app/components/links.jsx
+'use client'
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import './link.css'
+
+export function Links() {
+    const pathname = usePathname()
+    return <nav>
+        <ul>
+           <li>
+                <Link className={`link ${pathname === '/dashboard' ? 'active' : ''}`} href={{ pathname: '/dashboard' }}>Dashboard</Link>
+            </li>
+        </ul>
+    </nav >
+}
+
+....................................................................................
+			Advanced Routing-Dynamic routes
+			 "Catch-All Segment Routing"
+...................................................................................
+
+Dynamic segments can be extended to catch all subsequent by adding [...slug]
+
+Without CatchAll:
+................
+
+/shop/a 
+/shop/b
+/shop/c
+
+shop
+  |
+  [a]
+    |
+    page.js
+  |
+  [b]
+   |
+    page.js
+  [c]
+   |
+    page.js
+ page.js
+
+what if dynamic routes are not predefined in advance.
+
+With Catch All:
+................
+
+ shop
+  |
+  page.js
+  |
+  [...slug]
+    |
+    page.js
+
+/shop/tops
+/shop/tops/tshirt
+/shop/dress/men/shirt
+
+How to capture parameter?
+ {
+   slug:['tops','tshirt','men','shirt']
+ }
+
+
+src/app/shop/page.js
+export default function ShopPage() {
+    return <>
+        <h1>Shop Page</h1>
+    </>
+}
+
+src/app/shop/[...slug]/page.js
+export default function ShopDetailsPage({ params }) {
+    return <>
+        <h1>Shop Details Page</h1>
+        <h2>{JSON.stringify(params)}</h2>
+    </>
+}
+
+.....................................................................................
+			 Advanced Routing-Dynamic Routes
+		       "Optional Catch-All Segment Routing"
+		
+In the catch-All segement routing, the root folder has page.js, without that page.js what will happen>
+
+src/app/shop/[...slug]/page.js
+
+http://localhost:3000/shop
+  ->It will throw page not found.
+
+There would be use case , i dont want page.js inside /shop.
+
+Thats where Optional CatchAll segment Routing comes picture..
+
+src/app/shop/[[...slug]]
+             |
+     page.js
+
+Eg:
+
+src/app/shop/[[...slug]]/page.js
+export default function ShopDetailsPage({ params }) {
+    return <>
+        <h1>Shop Details Page</h1>
+        <h2>{JSON.stringify(params)}</h2>
+    </>
+}
+
+Conclusion in dynamic routing:
+
+ src/app/user/[id]- static dynamic routing
+ src/app/shop/tops - dynamic catch all routing
+ src/shop/
+       page.js
+ src/shop/[...slug]/page.js
+ src/app/shop/[[...slug]]/page.js -dynamic optional catch all routing
+
+ .....................................................................................
+				 Data Fetching
+.....................................................................................
+
+Types of Data Fetching:
+
+1.Server side data fetching
+2.Client side Data fetching
+
+.....................................................................................
+		  Server side data fetching using "fetch" api
+.....................................................................................
+
+etching data on the server with fetch:
+.......................................
+
+Next.js extends the native "fetch" Web API to allow you to configure the caching and revalidating behavior for each fetch request on the server.
+
+React extends fetch to automatically memoize fetch requests while rendering a React component tree.
+
+There are four places You can use fetch:
+1.Server components
+2.Client Components
+3.Route Handlers,REST API
+4.Server Actions
+
+....................................................................................
+			   Fetching data from external API using "fetch" api
+....................................................................................
+
+src/app/todos/layout.js
+//data fetching in server component using fetch 
+export async function fetchTodos() {
+    console.log('layout')
+
+    try {
+        const url = 'https://jsonplaceholder.typicode.com/todos'
+        const response = await fetch(url)
+        return response.json()
+    }
+    catch (err) {
+        return err
+    }
+
+}
+export default async function TodosLayout(props) {
+    const todos = await fetchTodos()
+
+    return <div>
+        <h1>Total Todos {todos.length}</h1>
+        {props.children}
+    </div>
+}
+
+src/app/todos/page.js
+
+
+//data fetching in server component using fetch 
+export async function fetchTodos() {
+    console.log('page')
+    try {
+        const url = 'https://jsonplaceholder.typicode.com/todos'
+        const response = await fetch(url)
+        return response.json()
+    }
+    catch (err) {
+        return err
+    }
+
+}
+
+export default async function TodosPage() {
+    const todos = await fetchTodos()
+    return <>
+        <h1>Todos Page</h1>
+        <ul>
+            {todos.map(todo => <li key={todo.id}>{todo.title}</li>)}
+        </ul>
+    </>
+}..................................................................................
+			.....................................................................................
+		  Server side data fetching using  "third party" api-axios
+.....................................................................................
+
+You can use any third party ajax api to call apis from next application but which is not recommended, because other apis will not have features such as caching,revalidation,request memoziation, we have to write extra code.
+.....................................................................................
+
+.....................................................................................
+	     Data fetching in Client components-Using fetch api
+....................................................................................
+
+src/app/components/FetchPosts.jsx
+'use client'
+
+import { useEffect, useState } from "react"
+
+export default function FetchPost() {
+    const [posts, setPosts] = useState([])
+    useEffect(() => {
+        async function fetchPostsDetails() {
+            const url = 'https://jsonplaceholder.typicode.com/posts'
+            const response = await fetch(url)
+            const posts = await response.json()
+            setPosts((myposts) => {
+                return posts.concat(myposts)
+            })
+        }
+        fetchPostsDetails()
+        return () => {
+            return null
+        }
+    }, [])
+    return <>
+        <h1>Posts</h1>
+        <ul>
+            {posts.map(post => {
+                return <li>
+                    <span>{post.title}</span>
+                </li>
+            })}
+        </ul>
+    </>
+}
+src/app/posts/page.js
+
+import FetchPost from "@/app/components/FetchPosts";
+
+export default function PostPage(){
+    return <div>
+        <h1>Post Page Fetching Data from the Client Side</h1>
+        <FetchPost/>
+    </div>
+}
+
+Using fetch api in client components is not recommended, the reason which has no any caching feature is enabled, so fetch must be used only in server side.\\
+
+.....................................................................................
+How to fetch data in client comonpents?
+
+		Data Fetching in Client Components using SWR API
+....................................................................................
+
+what is SWR?
+ The name “SWR” is derived from stale-while-revalidate, a HTTP cache invalidation strategy popularized by HTTP RFC 5861(opens in a new tab). SWR is a strategy to first return the data from cache (stale), then send the fetch request (revalidate), and finally come with the up-to-date data.
+
+ Why SWR
+1.Client side caching by default
+2.Cache revalidation by default
+3.You dont need to write hooks like useEffect,useState,
+4.You get data,error,loading flags
+
+....................................................................................
+		Data Fetching using Route Handler
+	      (REST API Development and Integration)
+....................................................................................
+
+Next.js Provides a layer called "API" Layer in order to build REST API.
+
+API layer can be used to write REST API which may talk to databases or external rest api or Graphql api or Microservices..
+
+Route handler:
+ Route handlers are used to CREATE API In next.js
+
+File Name convention:
+route.js
+
+src/app/todos/
+  page.js
+  layout.js
+  route.js - it is not recommended to write like this...
+
+
+src/app/api/
+  todos
+     route.js
+  [id]
+     route.js
+
+url pattern:
+  /api/todos
+  /api/customers
+  /api/products
+
+Inside Route Handler How to write code?
+
+export async function HTTPVerb(request){ 
+
+}
+=>Always route function must have "export" only
+=>Function must have async keyword
+=>Function args must have request object
+
+Supported Verbs:
+GET
+POST
+PUT
+PATCH
+DELETE
+HEAD
+OPTIONS
+
+
+APIS:
+ NextRequest Object used to handle client request
+ NextResponse Object used to send response to the client.
+
+...................................................................................
+			How to read Payload- data
+....................................................................................
+
+Payload For 
+1.Insert/save
+2.Update
+
+//POST
+src/app/api/message/route.js
+
+import { NextResponse } from "next/server";
+
+export async function GET(request) {
+    //send response
+    return NextResponse.json({ message: 'Hello api' })
+}
+export async function POST(request) {
+    //read body
+    const payload = await request.json()
+    console.log(payload)
+    return NextResponse.json({ message: 'saved' })
+}
+
+Testing:
+
+POST http://localhost:3000/api/greeter
+
+{
+    "message": "Hello",
+    "by": "Subramanian",
+    "whom": "Murugan"
+}
+
+.....................................................................................
+Configuration
+.....................................................................................
+
+In the above example, we haved coded urls, what if i dont want to hard code.
+
+const url = 'https://jsonplaceholder.typicode.com/albums'
+
+How to externalize the data like urls?
+
+We have file called '.env' file.
+
+Environment variables:
+
+ Next js comes with built in support for env variables which allows you to make your app more configurable, more flexiable.
+
+File syntax:
+
+.env
+.env.environment
+
+enviromnent would be "dev or prod or test"
+
+eg:
+.env
+.env.development
+.env.production
+.env.test
+.env.local
+
+.....................................................................................
+                              Database Integration
+....................................................................................
+Next js can integrate with any data base including sql (mysql,oracle,postgresql) and no sql (mongo,neodb,redis)
+
+In order to talk to databases application uses database drivers and apis....
+
+Mostly we use using databse frameworks called "ORM- Object Relational Mapping" Framework..
+
+For Node js, We have many frameworks...
+
+1.Prisma
+2.Sequalize
+3.Type ORM
+etc...
+
+we are going to use sqlite database...
+
+Any database we need to install database dirvers for prisma.
+
+3.Install sqlite database dirver.
+
+G:\IBM\2024\March\Nextjs\rest-dbapp>npx prisma init --datasource-provider sqlite
+Need to install the following packages:
+prisma@5.10.2
+Ok to proceed? (y) y
+
+✔ Your Prisma schema was created at prisma/schema.prisma
+  You can now open it in your favorite editor.
+
+warn You already have a .gitignore file. Don't forget to add `.env` in it to not commit any private information.
+
+Next steps:
+1. Set the DATABASE_URL in the .env file to point to your existing database. If your database has no tables yet, read https://pris.ly/d/getting-started
+2. Run npx prisma db pull to turn your database schema into a Prisma schema.
+3. Run npx prisma generate to generate the Prisma Client. You can then start querying your database.
+
+More information in our documentation:
+https://pris.ly/d/getting-started
+
+After installing, you can find folder inside project
+
+projectRootDir/prisma
+
+prisma folder contians a file called "schema.prisma"
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+Env variable was created automatically ".env"
+
+projectRootDir/.env
+# Environment variables declared in this file are automatically made available to Prisma.
+# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+
+# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+
+DATABASE_URL="file:./dev.db"
+....................................................................................
+			  ORM Fundamentals
+....................................................................................
+What is orm?
+Object Relational Mapping
+ |         |       |
+Entity RDBMS    Binding
+
+In Database programs, we sql sql quires for creating,inserting, updating, deleting
+
+In ORM World, SQL Quries are abstracted by apis like save, findAll, findById, remove,update..
+
+Entity Represents a "table" in the database.
+
+Schema :
+  The plan or structure
+
+Define Model (Enity)
+
+model User {
+
+}
+model Product {
+
+}
+
+Fields:
+ Fields are mapped in the table as columns
+
+model Comment{
+ id Int @id @default(autoincrement())
+ title String
+ content String
+}
+
+id -  column Name(field)
+Int - Datatype
+@id - Primiary Key
+@default - what is value we are going to assign to primary key
+autoincrement - function which generates values...
+
+
+Where to define this model?
+
+prisma/schema.prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// We have to define model
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+,,,,,,,,,,,,,,,,,,,,............................................................,
+		   Map model in the database
+...................................................................................
+1.Creating tables in the database
+
+G:\IBM\2024\March\Nextjs\rest-dbapp>npx prisma migrate dev --name init
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "dev.db" at "file:./dev.db"
+
+SQLite database dev.db created at file:./dev.db
+
+Applying migration `20240311072557_init`
+
+The following migration(s) have been created and applied from new schema changes:
+
+migrations/
+  └─ 20240311072557_init/
+    └─ migration.sql
+
+Your database is now in sync with your schema.
+
+Running generate... (Use --skip-generate to skip the generators)
+
+added 6 packages, and audited 144 packages in 11s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+added 1 package, and audited 145 packages in 7s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+✔ Generated Prisma Client (v5.10.2) to .\node_modules\@prisma\client in 53ms
+
+
+AFter running this step, you can see the table structure
+
+
+migrations/
+  └─ 20240311072557_init/
+    └─ migration.sql
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+			  Seeding Database
+.....................................................................................
+
+This step is only for testing, which is optional in production apps.
+
+While app starts if you want to insert some data for testing, you seed database
+
+
+prisma/seed.mjs
+import { PrismaClient } from "@prisma/client";
+
+//Prisma client is object through which we can seed database
+const prisma = new PrismaClient();
+
+async function main() {
+    //variable.modelname.api
+    const user = await prisma.user.create({
+        data: {
+            name: 'admin',
+            email: 'admin@ibm.com',
+            role: 'admin'
+        }
+    })
+    console.log('created', user)
+}
+main().then(() => prisma.$disconnect()).catch(async (e) => {
+    console.log(e)
+    await prisma.$disconnect()
+    process.exit()
+})
+
+package.json
+{
+  "name": "rest-dbapp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "prisma": {
+    "seed" : "node prisma/seed.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.2",
+    "next": "14.1.3",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.0.1",
+    "postcss": "^8",
+    "prisma": "^5.10.2",
+    "tailwindcss": "^3.3.0"
+  }
+}
+
+Seeding:
+ G:\IBM\2024\March\Nextjs\rest-dbapp>npx prisma db seed
+Environment variables loaded from .env
+Running seed command `node prisma/seed.mjs` ...
+created {
+  id: 'ec923d4e-a7cd-478d-bd63-bb92518faf83',
+  name: 'admin',
+  email: 'admin@ibm.com',
+  role: 'admin',
+  createdAt: 2024-03-12T04:21:46.996Z,
+  updatedAt: 2024-03-12T04:21:46.996Z
+}
+
+The seed command has been executed.
+.....................................................................................
+				Prisma Client Api
+.....................................................................................
+
+Prisma client api offers methods to talk to database... it offers curd api...
+
+src/lib/prisma.js
+import { PrismaClient } from "@prisma/client";
+
+const globalForPrisma = global
+
+export const  prisma = globalForPrisma.prisma || new PrismaClient({ log: ["query"] })
+.....................................................................................
+			 Rest api with Prisma
+.....................................................................................
+
+
+.....................................................................................
+				SEO - Meta data
+.....................................................................................
+
+Next js has meta data API that can be used to define your application meta data eg meta and link tags inside HTML element for improved SEO and web sharability.
+
+There are two ways you define meta data to your application.
+
+1.config based meta data
+   Export a static meta data via object called "Meta Data Object"
+   Dynamic meta data is nothing but getting data from the api and use that data for   SEO, we can get dynamic meta data via "generateMetaData" Function
+
+2.File based meta data
+  Add static or dynamically generated special files to route segements.
+
+ "With both these options, Next js will automatically generate the relevant <head>   
+  elements for your pages.
+
+1.Config based Meta data:
+..........................
+
+src/app/layout.js
+
+export const metadata = {
+  title: "Create Next App",
+  description: "Generated by create next app",
+};
+
+src/app/posts/page.js
+
+//add meta data
+export const metadata = {
+    title: 'Post'
+}
+
+
+export default function Posts() {
+    return <>
+        <h1>Post</h1>
+    </>
+}
+.....................................................................................
+			 Dynamic Meta Data
+.....................................................................................
+
+src/app/posts/[id]/page.js
+
+
+//dynamic meta daa
+
+export async function generateMetadata({ params, searchParams }, parent) {
+    const id = Number(params.id)
+    const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`)
+    const post = await response.json()
+    //return meta object 
+
+    return {
+        title: `${post.id} detail`
+    }
+}
+
+export default async function Posts(props) {
+    return <div className="flex min-h-screen flex-col  justify-between p-24">
+        <h1>{props.params.id}</h1>
+    </div>
+}
+
+.....................................................................................
+			  Caching,Revalidation,ISR
+....................................................................................	
+
+What is caching?
+
+ Caching means we dont need to call method more number of times if that method return same value.
+
+Normal function execution
+function add(a,b){
+   console.log('add is called')
+   return a + b
+}
+
+add(1,1)
+add(1,1)
+add(1,1)
+add(1,1)
+add(1,1)
+
+here function takes same input, returns same output,but it is called evertime...
+This approach degrades app performance, instead the returned value can be saved in memory or some other place, with same arg , if method called, we dont need to invoke again and again, rather returns result from the memory or some place which is called cache.
+
+Request Memoization:
+
+if "fetch" function is called in single tree  with same url for same data no of times
+that means if you call in the layout, again if call in nested call, again in page , inside page  with in generateMetadata, generateStaticParams... fetch call is cached in the layout itself..
+
+<layout> - fetch('/someapi') - called and cached
+  |
+  <page> - fetch('/someapi') - will take from cache, no api call is made against 			     server
+   |
+   generateMetadata -fetch('/someapi') -will take from cache, no api call is made 					against server
+
+   |
+   generateStaticParams-fetch('/someapi') -will take from cache, no api call is made 					against server
+
+
+   -Render completed - cache is reset.
+
+
+  "React extends the fetch API to automatically memoize requests that have the same URL and options. This means you can call a fetch function for the same data in multiple places in a React component tree while only executing it once."
+
+
+What if i want to use other than fetch api, like axios?
+
+ you can use axios, but i lacks memoziation , that means that api is not cached by default.
+
+ if want caching with axios, "react cache"
+
+ const cachedFn = cache(fn);
+
+ .....................................................................................
+			   Caching,Revalidation,ISR
+.....................................................................................
+
+How to enable and disable cache? and How to revalidate?
+
+
+G:\IBM\2024\March\Nextjs>npx create-next-app@latest
+√ What is your project named? ... caching-isr
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like to use `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to customize the default import alias (@/*)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+Creating a new Next.js app in G:\IBM\2024\March\Nextjs\caching-isr.
+
+
+In order to test how caching works , we are going to use api which returns current date and time , so that we can easily understand how caching is working..
+
+https://worldtimeapi.org/api/timezone/Asia/Kolkata
+
+src/app/timecache/[city]/page.js
+
+
+export default async function CachePage(props) {
+    //with caching
+    const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata')
+    const data = await response.json()
+
+    return <>
+        <h1>Time Now: {new Date(data.datetime).toLocaleTimeString()}</h1>
+    </>
+}
+
+Testing:
+http://localhost:3000/timecache/Kolkata
+
+You can notice the time has not changed, because data has been cached by default.
+
+
+Without Cache: When cache is disabled
+
+
+
+export default async function CachePage(props) {
+    //with caching
+    const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata', { cache: 'no-store' })
+    const data = await response.json()
+
+    return <>
+        <h1>Time Now: {new Date(data.datetime).toLocaleTimeString()}</h1>
+    </>
+}
+
+Testing:
+http://localhost:3000/timecache/Kolkata
+
+You can notice the time changed.
+
+.....................................................................................
+			Caching and Revalidation (clear the cache)
+
+How to revalidate the cache?
+
+1.Time based revalidation
+2.OnDemand revalidation
+   ->Tag based
+   ->Path based
+
+You can mix all revalidation in single route segment...
+
+
+Time based Revalidation:
+Configuration can be provided
+
+1.As part of fetch call
+2.As part of route segment config object
+
+
+1.As part of fetch call
+export default async function CachePage(props) {
+    //with caching
+    const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata', { next: { revalidate: 2 } })
+    const data = await response.json()
+
+    return <>
+        <h1>Time Now: {new Date(data.datetime).toLocaleTimeString()}</h1>
+    </>
+}
+
+2.As part of route segment config object
+
+//route segment config for revalidation
+export const revalidate = 2
+
+export default async function CachePage(props) {
+    //with caching
+    // const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata', { next: { revalidate: 2 } })
+
+    const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata')
+
+    const data = await response.json()
+
+    return <>
+        <h1>Time Now: {new Date(data.datetime).toLocaleTimeString()}</h1>
+    </>
+}
+
+....................................................................................
+				
+OnDemand Revalidation:
+.......................
+ OnDemand revalidation is done via api call, when you call api, validation triggers..
+
+Steps:
+
+1.You have to write rest api, which revalidates cache
+  1..1. You can use path
+  1..2. You can use tag
+
+
+path Based validation
+src/app/api/revalidate/route.js
+import { revalidatePath } from "next/cache"
+import { NextResponse } from "next/server"
+
+
+export  async function GET(request) {
+    //get the path so that we can revalidate via path 
+    const path = request.nextUrl.searchParams.get('path') || '/timecache/Kolkata'
+    revalidatePath(path)
+    console.log('revalidated', path)
+    return NextResponse.json({ revalidated: true, now: Date.now(), cache: 'no-store' })
+
+}
+
+Tag Based Revalidation:
+.......................
+
+Steps: 
+1.We have to add tag in fetch call
+export default async function CachePage(props) {
+    const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata', {
+        next: {
+            tags: ['collection']
+        }
+    })
+    const data = await response.json()
+
+    return <>
+        <h1>Time Now: {new Date(data.datetime).toLocaleTimeString()}</h1>
+    </>
+}
+
+
+2.We have to get tag in api, based on that we have to revalidate.
+
+import { revalidateTag } from "next/cache"
+import { NextResponse } from "next/server"
+
+
+export async function GET(request) {
+    //get Tag//Collection 
+    const collection = request.nextUrl.searchParams.get('collection') || 'collection'
+    revalidateTag(collection)
+    console.log('revalidated', collection)
+    return NextResponse.json({ revalidated: true, now: Date.now(), cache: 'no-store' })
+
+}
+....................................................................................
+			    ISR - Incremental Static Rendering
+.....................................................................................
+
+ISR =  SSG + Caching + Revalidation.
+
+SSG:
+  -> Get data during build process 
+  -> Render page and cache it 
+  
+Revalidation
+  ->When we want fresh data for the page
+  ->during revalidation, cache is cleared, so that the page also need to be re    rendered
+
+"Incremental Static Rendering is nothing but create pages during build time and cache it,if any data change for the particular page, re render that page, after cleaning the cache either by using time based or on demand or both"
+
+ISR = >SSR + SSR = Static Rendering + Dynamic Rendering === Build time +request time
+
+How to implment ISR?
+
+1.Enable Cache
+2.Select Revalidation pattern
+3.override generateStaticParams method  where you have generate page , after build   time, the page is cached
+4.Revaildate the pre build page, using revalidation pattern so that page is rebuilt.
+
+During SSG, the pages are cached by default.
+
+Once the app gone to the production, after that if you want  rebuild page you can apply revalidation process.
+
+ISR = SSG + Revalidation
+
+
+
+export default async function CachePage(props) {
+    const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata', {
+        next: {
+            tags: ['collection']
+        }
+    })
+    const data = await response.json()
+
+    return <>
+        <h1>Time Now: {new Date(data.datetime).toLocaleTimeString()}</h1>
+    </>
+}
+//SSG 
+export async function generateStaticParams() {
+    return [
+        {
+            city: 'Kolkata'
+        }
+    ]
+}
+Testing 
+YOu can select any revalidation pattern (time, or ondemand)
+
+next run build
+
+G:\IBM\2024\March\Nextjs\caching-isr>npm run build
+
+> caching-isr@0.1.0 build
+> next build
+
+   ▲ Next.js 14.1.3
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+ ✓ Linting and checking validity of types
+ ✓ Collecting page data
+ ✓ Generating static pages (7/7)
+ ✓ Collecting build traces
+ ✓ Finalizing page optimization
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    5.22 kB        89.5 kB
+├ ○ /_not-found                          882 B          85.1 kB
+├ λ /api/revalidate                      0 B                0 B
+└ ● /timecache/[city]                    137 B          84.4 kB
+    └ /timecache/Kolkata
++ First Load JS shared by all            84.3 kB
+  ├ chunks/69-c292296505fe2927.js        29 kB
+  ├ chunks/fd9d1056-c7082c319cc53ced.js  53.4 kB
+  └ other shared chunks (total)          1.87 kB
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses getStaticProps)
+λ  (Dynamic)  server-rendered on demand using Node.js
+
+
+npm start
+
+
+http://localhost:3000/timecache/Kolkata
+
+http://localhost:3000/api/revalidate
+
+.....................................................................................
+			Server actions and mutations
+.....................................................................................
+What is server actions?
+
+   Server actions are async functions that are executed on the server
+   Server actions can be used inside server and client components to handle form    submssions and data mutations in next apps
+
+   Server actions introduced in next 13 as beta, now in next 14 is stable.
+
+Convention:
+  A server actions can be defined with "user server"  directive.
+  You can place the directive at the top of async function to mark the function as a   server action or you can mark at top of the file as well.
+
+
+Server components:
+ 
+export default function Page(){
+  //server actions
+  async function create(){
+   "use server"
+
+  }
+  
+}
+
+Server actions inside client component:
+
+You cant use server actions inside client directly, rather we have write separatly and import
+
+src/app/actions/action.js
+
+'use server'
+
+export async function create() {}
+
+
+'use client'
+import {create} from '@app/actions/action'
+ 
+export default function ClientComponent(){
+  
+}
