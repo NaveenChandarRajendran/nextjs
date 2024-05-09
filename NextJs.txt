@@ -2369,3 +2369,48 @@ Response:
 {
   "deletePost": true
 }
+....................................................................................
+			 Server side : GraphQL schema Language
+....................................................................................
+How to build rest api?
+  According to rest spec,The problems(domain) are represented as "resources"
+
+Resource represents a Object which expose data and api.
+eg:CustomerResource,OrderResource,ProductResource.
+
+Resources are identified by URL 
+eg:/
+	/api/products and Methods are "GET/POST/PUT/DELETE"
+
+How to build graphql applications?
+ According to graphql specifications problems are represented as "Schema"
+Schema represents domain models.
+Domain Models are represetented as Objects | models | entity.
+
+eg:
+ Customer,Order,Product.
+
+In Programming side schema is represented as "Objects and its relationship"
+Object and its relationship forms "graph" - Object Graph
+.....................................................................................
+How to start write graphql apps?
+   
+   In order to begin with, we need learn there is language called "SDL" - Schema definition language.
+
+SDL Core concepts:
+.................
+
+Flow of client and server
+
+query getUserData {
+   user {
+     name ===>SDL============>Server==>SDL===Entity==>Biz logic(Services)===>Data 									sources
+  }
+}
+
+Both client and server talks via common language called "SDL" language
+
+SDL provides language independent abstraction.
+
+	     SDL----->|JAVA/js/python/c++ ...
+
